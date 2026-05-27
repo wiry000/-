@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>口罩資訊網</title>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ycchen.im.ncnu.edu.tw/twCity.js"></script>
+    <script>
+        $(document).ready(function () {
+            cityName = ["基隆市", "新北市", "臺北市", "桃園市", "新竹縣", "新竹市", "苗栗縣", "臺中市", "彰化縣", "南投縣", "雲林縣", "嘉義縣", "嘉義市", "臺南市", "高雄市", "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣"];
+            var citySelect = document.getElementById("citySelect");
+            for (var i = 0; i < cityName.length; i++) {
+                var option = document.createElement("option");
+                option.value = cityName[i];
+                option.text = cityName[i];
+                citySelect.appendChild(option);
+            }
+            citySelect.addEventListener("change", function () {
+                var townSelect = document.getElementById("townSelect");
+                townSelect.innerHTML = "";
+                var selectCity = citySelect.value;
+                var townArray = eval(cityArr[selectCity]);
+                for (var i = 0; i < townArray.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = townArray[i];
+                    option.text = townArray[i];
+                    townSelect.appendChild(option);
+                }
+            });
+            var defaultCity = "基隆市";
+            var defaultTown = "暖暖區";
+            citySelect.value = defaultCity;
+            citySelect.dispatchEvent(new Event("change"));
+            townSelect.value = defaultTown;
+            townSelect.dispatchEvent(new Event("change"));
+            $("#searchBtn").click(function () {
+                var selectCity = citySelect.value;
+                var selectTown = townSelect.value;
+                $.ajax({
+                    url:"getMask.php",
+                    type:"GET",
+                    dataType:"json",
+                    data:{ city: selectCity, town: selectTown },
+                    success:function (data) {
+                        console.log(data);
+                        var maskData = data;
+                        console.log(maskData);
+                        maskData.sort(function (a,b) {
+                            return b.adultMask - a.adultMask;
+                        });
+                        var table = "<table>";
+                        table += "<tr><th>醫事機構</th><th>醫事機構地址</th><th>成人口罩數量</th><th>兒童口罩數量</th></tr>";
+                        for (var i = 0; i < maskData.length; i++) {
+                            table += "<tr>";
+                            table += "<td>" + maskData[i].med + "</td>";
+                            table += "<td>" + maskData[i].med_address + "</td>";
+                            table += "<td>" + maskData[i].adultMask + "</td>";
+                            table += "<td>" + maskData[i].childMask + "</td>";
+                            table += "</tr>";
+                        }
+                        table += "</table>";
+                        $("#result").html(table);
+                    },
+                    error: function (xhr) {
+                        alert("Wrong: " + xhr.status + " " + xhr.statusText);
+                    }
+                });
+            });
+        });
+    </script>
+    <style>
+table {
+border: 3px outset Olive;
+margin: 10px auto;
+}
+tr:nth-of-type(even) {
+background-color: LightCyan;
+}
+td {
+padding: 3px 5px;
+text-align: center;
+}
+th {
+color: white;
+background-color: DarkGreen;
+padding: 5px;
+}
+#cont {
+text-align: center;
+}
+h1{
+text-align: center;
+}
+
+    </style>
+</head>
+<body>
+    <h1>口罩資訊</h1>
+    <label for="citySelect">選擇縣市：</label>
+    <select id="citySelect"></select>
+    <label for="townSelect">選擇鄉鎮：</label>
+    <select id="townSelect"></select>
+    <button id="searchBtn">搜尋</button>
+    <div id="result"></div>
+</body>
+</html>

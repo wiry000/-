@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>口罩統計資訊站</title>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ycchen.im.ncnu.edu.tw/twCity.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "getAllMask.php",
+                type: "GET",
+                dataType: "json",
+                success: function (response) {
+                    console.log(response);
+                    var maskData = response;
+                    console.log(maskData);
+                    maskData.sort(function (a, b) {
+                        return b.adultMask - a.adultMask;
+                    });
+                    var table = "<table>";
+                    table += "<tr><th>醫事機構</th><th>醫事機構地址</th><th>成人口罩數量</th><th>兒童口罩數量</th></tr>";
+                    for (var i = 0; i < maskData.length; i++) {
+                        table += "<tr>";
+                        table += "<td>" + maskData[i].med + "</td>";
+                        table += "<td>" + maskData[i].med_address + "</td>";
+                        table += "<td>" + maskData[i].adultMask + "</td>";
+                        table += "<td>" + maskData[i].childMask + "</td>";
+                        table += "</tr>";
+                    }
+                    table += "</table>";
+                    $("#result").html(table);
+                },
+                error: function (xhr) {
+                    alert("Wrong: "+xhr.status+" "+xhr.statusText);
+                }
+            });
+        });
+    </script>
+    <style>
+table {
+border: 3px outset Olive;
+margin: 10px auto;
+}
+tr:nth-of-type(even) {
+background-color: LightCyan;
+}
+td {
+padding: 3px 5px;
+text-align: center;
+}
+th {
+color: white;
+background-color: DarkGreen;
+padding: 5px;
+}
+#cont {
+text-align: center;
+}
+h1{
+text-align: center;
+}
+
+    </style>
+</head>
+<body>
+    <h1>口罩統計資訊</h1>
+    <div id="result"></div>
+</body>
+</html>
